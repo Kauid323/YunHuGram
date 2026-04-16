@@ -1,0 +1,233 @@
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
+apply plugin: 'com.android.library'
+apply plugin: 'com.squareup.wire'
+
+repositories {
+    mavenCentral()
+    google()
+}
+
+configurations {
+    compile.exclude module: 'support-v4'
+}
+
+configurations.all {
+    exclude group: 'com.google.firebase', module: 'firebase-core'
+    exclude group: 'androidx.recyclerview', module: 'recyclerview'
+}
+
+dependencies {
+    implementation 'androidx.core:core:1.10.1'
+    implementation 'androidx.palette:palette:1.0.0'
+    implementation 'androidx.exifinterface:exifinterface:1.3.3'
+    implementation 'androidx.dynamicanimation:dynamicanimation:1.0.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation "androidx.sharetarget:sharetarget:1.2.0"
+
+    compileOnly 'org.checkerframework:checker-qual:2.5.2'
+    compileOnly 'org.checkerframework:checker-compat-qual:2.5.0'
+    implementation 'com.google.firebase:firebase-messaging:22.0.0'
+    implementation 'com.google.firebase:firebase-config:21.0.1'
+    implementation 'com.google.firebase:firebase-datatransport:18.1.0'
+    implementation 'com.google.firebase:firebase-appindexing:20.0.0'
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    implementation 'com.google.android.gms:play-services-auth:20.4.0'
+    implementation 'com.google.android.gms:play-services-vision:20.1.3'
+    implementation 'com.google.android.gms:play-services-wearable:18.0.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation 'com.google.android.gms:play-services-wallet:19.1.0'
+    implementation 'com.google.android.gms:play-services-safetynet:18.0.1'
+    implementation 'com.googlecode.mp4parser:isoparser:1.0.6'
+    implementation 'com.stripe:stripe-android:2.0.2'
+    implementation 'com.google.mlkit:language-id:16.1.1'
+    implementation 'com.android.billingclient:billing:5.1.0'
+    implementation 'com.google.code.gson:gson:2.10'
+    implementation 'com.google.guava:guava:31.1-android'
+    implementation 'com.squareup.okhttp3:okhttp:3.12.13'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.12.13'
+    implementation 'com.squareup.wire:wire-runtime:5.3.5'
+
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+}
+
+def isWindows = String.valueOf(DefaultNativePlatform.currentOperatingSystem.toFamilyName() == OperatingSystemFamily.WINDOWS)
+
+wire {
+    java {}
+}
+
+android {
+    compileSdkVersion 35
+    namespace 'org.telegram.messenger'
+    ndkVersion "21.4.7075529"
+
+    sourceSets.main.jniLibs.srcDirs = ['./jni/']
+    sourceSets.main.java {
+        exclude 'org/webrtc/**'
+
+        exclude 'org/telegram/messenger/voip/AudioRecordJNI.java'
+        exclude 'org/telegram/messenger/voip/AudioTrackJNI.java'
+        exclude 'org/telegram/messenger/voip/CallNotificationSoundProvider.java'
+        exclude 'org/telegram/messenger/voip/EncryptionKeyEmojifier.java'
+        exclude 'org/telegram/messenger/voip/JNIUtilities.java'
+        exclude 'org/telegram/messenger/voip/NativeInstance.java'
+        exclude 'org/telegram/messenger/voip/Resampler.java'
+        exclude 'org/telegram/messenger/voip/TelegramConnectionService.java'
+        exclude 'org/telegram/messenger/voip/VLog.java'
+        exclude 'org/telegram/messenger/voip/VoIPActionsReceiver.java'
+        exclude 'org/telegram/messenger/voip/VoipAudioManager.java'
+        exclude 'org/telegram/messenger/voip/VoIPController.java'
+        exclude 'org/telegram/messenger/voip/VoIPMediaButtonReceiver.java'
+        exclude 'org/telegram/messenger/voip/VoIPPendingCall.java'
+        exclude 'org/telegram/messenger/voip/VoIPServerConfig.java'
+
+        exclude 'org/telegram/ui/TestActivity.java'
+        exclude 'org/telegram/ui/GroupCallTabletGridAdapter.java'
+        exclude 'org/telegram/ui/Components/GroupCallFullscreenAdapter.java'
+        exclude 'org/telegram/ui/Components/GroupCallPipAlertView.java'
+
+        exclude 'org/telegram/ui/Components/voip/AcceptDeclineView.java'
+        exclude 'org/telegram/ui/Components/voip/CallSwipeView.java'
+        exclude 'org/telegram/ui/Components/voip/CheckableImageView.java'
+        exclude 'org/telegram/ui/Components/voip/FabBackgroundDrawable.java'
+        exclude 'org/telegram/ui/Components/voip/GroupCallGridCell.java'
+        exclude 'org/telegram/ui/Components/voip/GroupCallMiniTextureView.java'
+        exclude 'org/telegram/ui/Components/voip/GroupCallRenderersContainer.java'
+        exclude 'org/telegram/ui/Components/voip/GroupCallStatusIcon.java'
+        exclude 'org/telegram/ui/Components/voip/PrivateVideoPreviewDialog.java'
+        exclude 'org/telegram/ui/Components/voip/RTMPStreamPipOverlay.java'
+        exclude 'org/telegram/ui/Components/voip/VoIPButtonsLayout.java'
+        exclude 'org/telegram/ui/Components/voip/VoIPFloatingLayout.java'
+        exclude 'org/telegram/ui/Components/voip/VoIPNotificationsLayout.java'
+        exclude 'org/telegram/ui/Components/voip/VoIPOverlayBackground.java'
+        exclude 'org/telegram/ui/Components/voip/VoIPPiPView.java'
+        exclude 'org/telegram/ui/Components/voip/VoIPStatusTextView.java'
+        exclude 'org/telegram/ui/Components/voip/VoIPTextureView.java'
+        exclude 'org/telegram/ui/Components/voip/VoIPTimerView.java'
+        exclude 'org/telegram/ui/Components/voip/VoIPToggleButton.java'
+        exclude 'org/telegram/ui/Components/voip/VoIPWindowView.java'
+    }
+
+    externalNativeBuild {
+        cmake {
+            path 'jni/CMakeLists.txt'
+        }
+    }
+
+    lintOptions {
+        disable 'MissingTranslation'
+        disable 'ExtraTranslation'
+        disable 'BlockedPrivateApi'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+
+        coreLibraryDesugaringEnabled true
+    }
+
+    defaultConfig.versionCode = Integer.parseInt(APP_VERSION_CODE)
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 35
+        versionName "8.9.0"
+
+        vectorDrawables.generatedDensities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi']
+
+        multiDexEnabled true
+
+        externalNativeBuild {
+            cmake {
+                version '3.10.2'
+                arguments '-DANDROID_STL=c++_static', '-DANDROID_PLATFORM=android-16'
+            }
+        }
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+            jniDebuggable true
+            minifyEnabled false
+            shrinkResources false
+            multiDexEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../TMessagesProj/proguard-rules.pro'
+            ndk.debugSymbolLevel = 'FULL'
+            buildConfigField "String", "APP_CENTER_HASH", "\"\""
+            buildConfigField "boolean", "DEBUG_VERSION", "true"
+            buildConfigField "boolean", "DEBUG_PRIVATE_VERSION", "true"
+            buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
+        }
+
+        HA_private {
+            debuggable false
+            jniDebuggable false
+            minifyEnabled false
+            multiDexEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../TMessagesProj/proguard-rules.pro'
+            ndk.debugSymbolLevel = 'FULL'
+            buildConfigField "String", "APP_CENTER_HASH", "\"" + getProps("APP_CENTER_HASH_PRIVATE") + "\""
+            buildConfigField "boolean", "DEBUG_VERSION", "true"
+            buildConfigField "boolean", "DEBUG_PRIVATE_VERSION", "true"
+            buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
+        }
+
+        HA_public {
+            debuggable false
+            jniDebuggable false
+            minifyEnabled false
+            multiDexEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../TMessagesProj/proguard-rules.pro'
+            ndk.debugSymbolLevel = 'FULL'
+            buildConfigField "String", "APP_CENTER_HASH", "\"" + getProps("APP_CENTER_HASH_PUBLIC") + "\""
+            buildConfigField "boolean", "DEBUG_VERSION", "true"
+            buildConfigField "boolean", "DEBUG_PRIVATE_VERSION", "false"
+            buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
+        }
+
+        standalone {
+            debuggable false
+            jniDebuggable false
+            minifyEnabled false
+            multiDexEnabled true
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../TMessagesProj/proguard-rules.pro'
+            ndk.debugSymbolLevel = 'FULL'
+            buildConfigField "String", "APP_CENTER_HASH", "\"\""
+            buildConfigField "boolean", "DEBUG_VERSION", "false"
+            buildConfigField "boolean", "DEBUG_PRIVATE_VERSION", "false"
+            buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
+        }
+
+        release {
+            debuggable false
+            jniDebuggable false
+            minifyEnabled false
+            shrinkResources false
+            multiDexEnabled true
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../TMessagesProj/proguard-rules.pro'
+            ndk.debugSymbolLevel = 'FULL'
+            buildConfigField "String", "APP_CENTER_HASH", "\"\""
+            buildConfigField "boolean", "DEBUG_VERSION", "false"
+            buildConfigField "boolean", "DEBUG_PRIVATE_VERSION", "false"
+            buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
+        }
+    }
+}
+
+
+def getProps(String propName) {
+    def propsFile = rootProject.file('local.properties')
+    if (propsFile.exists()) {
+        def props = new Properties()
+        props.load(new FileInputStream(propsFile))
+        return props[propName]
+    } else {
+        return "";
+    }
+}
