@@ -1554,7 +1554,7 @@ public class ContactsController extends BaseController {
 
     private boolean shouldUseYhContacts() {
         YhSession session = getYhApiFacade().getSession();
-        return session != null && session.isValid() && !TextUtils.isEmpty(session.getUserId());
+        return session != null && session.isValid();
     }
 
     private void loadYhContacts(boolean fromCache) {

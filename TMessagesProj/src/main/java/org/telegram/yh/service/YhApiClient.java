@@ -3,6 +3,7 @@ package org.telegram.yh.service;
 import com.google.gson.Gson;
 
 import org.telegram.messenger.BuildVars;
+import org.telegram.messenger.FileLog;
 import org.telegram.yh.YhApiConfig;
 import org.telegram.yh.YhApiException;
 
@@ -74,6 +75,10 @@ public class YhApiClient {
         HttpUrl url = baseUrl.resolve(relativePath);
         if (url == null) {
             throw new IOException("Invalid YH API path: " + relativePath);
+        }
+
+        if (BuildVars.LOGS_ENABLED) {
+            FileLog.d("YH API POST: " + url + " token=" + (token != null && token.length() > 0 ? "present" : "null"));
         }
 
         Request.Builder builder = new Request.Builder()

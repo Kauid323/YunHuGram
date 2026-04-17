@@ -92,18 +92,15 @@ public class YhGroupViewModel {
             callback.onSuccess(new ArrayList<>(), false, false, currentMembersPage);
             return;
         }
-        int normalizedPage = Math.max(1, page);
-        if (!reset) {
-            normalizedPage = Math.max(normalizedPage, currentMembersPage + 1);
-        }
-        final int requestedPage = normalizedPage;
+        // 直接使用传入的页码，不再做额外计算
+        final int requestedPage = reset ? 1 : page;
         membersLoading = true;
         repository.loadGroupMembers(groupId, requestedPage, YhGroupRepository.DEFAULT_GROUP_MEMBER_PAGE_SIZE, "", new YhGroupRepository.MembersCallback() {
             @Override
             public void onSuccess(ArrayList<YhGroupMember> members) {
                 membersLoading = false;
                 currentMembersGroupId = groupId;
-                if (requestedPage == 1) {
+                if (reset || requestedPage == 1) {
                     cachedMembers.clear();
                 }
                 if (members != null && !members.isEmpty()) {

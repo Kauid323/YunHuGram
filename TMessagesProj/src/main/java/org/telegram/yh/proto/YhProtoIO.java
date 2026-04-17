@@ -84,6 +84,7 @@ public final class YhProtoIO {
     }
 
     public static byte[] buildGroupMembersRequest(String groupId, int size, int page, String keywords) throws IOException {
+        android.util.Log.d("YHProtoIO", "buildGroupMembersRequest: groupId=" + groupId + " size=" + size + " page=" + page);
         list_member_send.Data data = new list_member_send.Data.Builder()
                 .size(size)
                 .page(page)
@@ -94,7 +95,9 @@ public final class YhProtoIO {
         if (keywords != null && keywords.length() > 0) {
             requestBuilder.keywords(keywords);
         }
-        return list_member_send.ADAPTER.encode(requestBuilder.build());
+        list_member_send built = requestBuilder.build();
+        android.util.Log.d("YHProtoIO", "Request built: groupId=" + built.group_id + " data.size=" + (built.data != null ? built.data.size : "null") + " data.page=" + (built.data != null ? built.data.page : "null"));
+        return list_member_send.ADAPTER.encode(built);
     }
 
     public static byte[] buildUserDetailRequest(String userId) throws IOException {
@@ -336,13 +339,16 @@ public final class YhProtoIO {
         }
         ArrayList<YhGroupMember> members = new ArrayList<>();
         if (response == null || response.user == null) {
+            android.util.Log.d("YHProtoIO", "parseGroupMembers: response.user is null, returning empty list");
             return members;
         }
-        for (com.yhchat.canary.proto.group.User user : response.user) {
+        android.util.Log.d("YHProtoIO", "parseGroupMembers: user count = " + response.user.size());
+        for (int i = 0; i < response.user.size(); i++) {
+            com.yhchat.canary.proto.group.User user = response.user.get(i);
             if (user == null || user.user_info == null) {
                 continue;
             }
-            members.add(new YhGroupMember(
+            YhGroupMember member = new YhGroupMember(
                     user.user_info.user_id,
                     user.user_info.name,
                     user.user_info.avatar_url,
@@ -350,8 +356,13 @@ public final class YhProtoIO {
                     user.permission_level,
                     user.gag_time,
                     user.is_gag != 0
-            ));
+            );
+            members.add(member);
+            if (i < 3) {
+                android.util.Log.d("YHProtoIO", "Member " + i + ": userId=" + user.user_info.user_id + " name=" + user.user_info.name);
+            }
         }
+        android.util.Log.d("YHProtoIO", "parseGroupMembers: returning " + members.size() + " members");
         return members;
     }
 

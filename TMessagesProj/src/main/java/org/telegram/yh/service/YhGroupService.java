@@ -29,8 +29,17 @@ public class YhGroupService {
 
     public ArrayList<YhGroupMember> getGroupMembers(String groupId, int size, int page, String keywords) throws IOException {
         YhSession session = requireSession();
+        android.util.Log.d("YHGroupService", "getGroupMembers: groupId=" + groupId + " size=" + size + " page=" + page + " keywords=" + keywords);
         byte[] requestBody = YhProtoIO.buildGroupMembersRequest(groupId, size, page, keywords);
+        android.util.Log.d("YHGroupService", "Request body length: " + requestBody.length);
+        // Log first few bytes as hex to verify protobuf encoding
+        StringBuilder hex = new StringBuilder();
+        for (int i = 0; i < Math.min(requestBody.length, 50); i++) {
+            hex.append(String.format("%02X ", requestBody[i]));
+        }
+        android.util.Log.d("YHGroupService", "Request hex (first 50 bytes): " + hex.toString());
         byte[] response = apiClient.postProto("v1/group/list-member", session.getToken(), requestBody);
+        android.util.Log.d("YHGroupService", "Response body length: " + response.length);
         return YhProtoIO.parseGroupMembers(response);
     }
 

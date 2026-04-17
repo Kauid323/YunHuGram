@@ -5618,10 +5618,12 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         } else {
             requestedPage = Math.max(1, yhGroupMembersNextPage);
         }
+        android.util.Log.d("YHContacts", "loadYhGroupMembers: page=" + requestedPage + " reload=" + reload);
         loadingUsers = true;
         yhGroupViewModel.loadGroupMembers(yhGroupId, requestedPage, reload, new YhGroupViewModel.MembersCallback() {
             @Override
             public void onSuccess(ArrayList<org.telegram.yh.model.YhGroupMember> members, boolean reset, boolean hasMore, int loadedPage) {
+                android.util.Log.d("YHContacts", "onSuccess: page=" + loadedPage + " reset=" + reset + " hasMore=" + hasMore + " membersCount=" + (members != null ? members.size() : 0));
                 if (chatInfo.participants == null || reset) {
                     TLRPC.TL_chatParticipants participants = new TLRPC.TL_chatParticipants();
                     participants.chat_id = chatId;
@@ -5634,6 +5636,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     participantsMap.clear();
                 }
                 YhTelegramMapper.applyGroupMembers(currentAccount, currentChat, chatInfo, yhGroupViewModel.getCachedGroupInfo(), members, reset);
+                android.util.Log.d("YHContacts", "total participants=" + (chatInfo.participants != null ? chatInfo.participants.participants.size() : 0));
                 if (participantsMap != null && chatInfo.participants != null) {
                     for (int i = 0; i < chatInfo.participants.participants.size(); i++) {
                         TLRPC.ChatParticipant participant = chatInfo.participants.participants.get(i);
@@ -5651,6 +5654,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 }
                 usersEndReached = !hasMore;
                 yhGroupMembersNextPage = loadedPage + 1;
+                android.util.Log.d("YHContacts", "nextPage=" + yhGroupMembersNextPage + " usersEndReached=" + usersEndReached);
                 yhGroupMembersInitialized = true;
                 loadingUsers = false;
                 getMessagesController().putChatFull(chatInfo);
@@ -5661,6 +5665,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
 
             @Override
             public void onError(String error) {
+                android.util.Log.e("YHContacts", "error=" + error);
                 loadingUsers = false;
             }
         });
@@ -11006,30 +11011,15 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             return;
         }
 
-        DiffCallback diffCallback = new DiffCallback();
-        diffCallback.oldRowCount = rowCount;
-        diffCallback.fillPositions(diffCallback.oldPositionToItem);
-        diffCallback.oldChatParticipant.clear();
-        diffCallback.oldChatParticipantSorted.clear();
-        diffCallback.oldChatParticipant.addAll(visibleChatParticipants);
-        diffCallback.oldChatParticipantSorted.addAll(visibleSortedUsers);
-        diffCallback.oldMembersStartRow = membersStartRow;
-        diffCallback.oldMembersEndRow = membersEndRow;
         if (updateOnlineCount) {
             updateOnlineCount(false);
         }
         saveScrollPosition();
         updateRowsIds();
-        diffCallback.fillPositions(diffCallback.newPositionToItem);
-        try {
-            DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(listAdapter);
-        } catch (Exception e) {
-            listAdapter.notifyDataSetChanged();
-        }
+        listAdapter.notifyDataSetChanged();
         if (savedScrollPosition >= 0) {
             layoutManager.scrollToPositionWithOffset(savedScrollPosition, savedScrollOffset - listView.getPaddingTop());
         }
-        AndroidUtilities.updateVisibleRows(listView);
     }
 
     int savedScrollPosition = -1;
